@@ -2,7 +2,7 @@
 
 ![Bookly API Banner](docs/images/banner.png)
 
-Este repositorio es una implementación de producción de una API REST para la gestión de libros, autores, reseñas y etiquetas. Nace de la consolidación y expansión del curso de especialización **"FastAPI Beyond CRUD"** (de *Ssali Jonathan*). 
+Este repositorio es una implementación de producción de una API REST para la gestión de libros, autores, reseñas y etiquetas. Nace de la consolidación y expansión del curso de especialización [**"FastAPI Beyond CRUD"**](https://www.youtube.com/watch?v=TO4aQ3ghFOc) (de _Ssali Jonathan_).
 
 Este proyecto no solo aplica los fundamentos aprendidos, sino que los rediseña y actualiza bajo los estándares modernos de desarrollo de software empresarial, principios de **Clean Architecture**, asincronía avanzada y aislamiento mediante contenedores (**Docker**). Es un recurso didáctico enfocado en servir como portafolio profesional e implementación de referencia para arquitecturas backend robustas en Python.
 
@@ -12,13 +12,13 @@ Este proyecto no solo aplica los fundamentos aprendidos, sino que los rediseña 
 
 1. [Conceptos del Curso vs. Buenas Prácticas Aplicadas](#-conceptos-del-curso-vs-buenas-prácticas-aplicadas)
 2. [Análisis de Decisiones de Diseño y Arquitectura](#-análisis-de-decisiones-de-diseño-y-arquitectura)
-   * [¿Por qué Clean Architecture y Service Layer?](#por-qué-clean-architecture-y-service-layer)
-   * [El Poder de la Asincronía Completa (Async/Await)](#el-poder-de-la-asincronía-completa-asyncawait)
+   - [¿Por qué Clean Architecture y Service Layer?](#por-qué-clean-architecture-y-service-layer)
+   - [El Poder de la Asincronía Completa (Async/Await)](#el-poder-de-la-asincronía-completa-asyncawait)
 3. [Explicación Didáctica de Patrones Clave](#-explicación-didáctica-de-patrones-clave)
-   * [Flujo de Autenticación JWT con Redis Blocklist](#1-flujo-de-autenticación-jwt-con-redis-blocklist)
-   * [Control de Acceso basado en Roles (RBAC) con Inyección de Dependencias](#2-control-de-acceso-basado-en-roles-rbac-con-inyección-de-dependencias)
-   * [Procesamiento Asíncrono de Tareas (Celery + Redis)](#3-procesamiento-asíncrono-de-tareas-celery--redis)
-   * [Gestión Profesional de Excepciones Estandarizadas](#4-gestión-profesional-de-excepciones-estandarizadas)
+   - [Flujo de Autenticación JWT con Redis Blocklist](#1-flujo-de-autenticación-jwt-con-redis-blocklist)
+   - [Control de Acceso basado en Roles (RBAC) con Inyección de Dependencias](#2-control-de-acceso-basado-en-roles-rbac-con-inyección-de-dependencias)
+   - [Procesamiento Asíncrono de Tareas (Celery + Redis)](#3-procesamiento-asíncrono-de-tareas-celery--redis)
+   - [Gestión Profesional de Excepciones Estandarizadas](#4-gestión-profesional-de-excepciones-estandarizadas)
 4. [Estructura Detallada del Proyecto](#-estructura-detallada-del-proyecto)
 5. [Configuración de Middlewares en Producción](#-configuración-de-middlewares-en-producción)
 6. [Despliegue Aislado con Docker Compose](#-despliegue-aislado-con-docker-compose)
@@ -29,16 +29,16 @@ Este proyecto no solo aplica los fundamentos aprendidos, sino que los rediseña 
 
 ## 🛠️ Conceptos del Curso vs. Buenas Prácticas Aplicadas
 
-| Concepto Base (Curso) | Implementación de Nivel de Producción (Este Proyecto) |
-| :--- | :--- |
-| **Bases de Datos con SQLModel** | Implementación de persistencia asíncrona avanzada con **SQLAlchemy + SQLModel** usando el driver `asyncpg` y conexión directa a **NeonDB** (PostgreSQL Serverless) en la nube. |
-| **Estructura del Proyecto** | Organización bajo **Clean Architecture** y patrón **Service Layer**, separando los módulos y desacoplando la lógica de negocio de los controladores para facilitar pruebas unitarias. |
-| **Autenticación JWT** | Seguridad robusta con **Access & Refresh Tokens**. Se agregó invalidación activa mediante una lista de tokens revocados (**Redis Blocklist**) para un Logout seguro. |
-| **Control de Acceso (RBAC)** | Sistema de autorización jerárquico basado en Roles y Permisos (`RoleChecker`) inyectados como dependencias de FastAPI. |
-| **Manejo de Errores** | Jerarquía de excepciones polimórficas personalizadas (`BooklyException`) y controladores globales que devuelven payloads JSON legibles y consistentes. |
-| **Tareas en Segundo Plano** | Delegación de procesos bloqueantes a un gestor de colas asíncrono con **Celery** y **Redis**, como el envío transaccional de correos (`fastapi-mail` + `asgiref`). |
-| **Middlewares** | Implementación de middlewares profesionales: CORS, compresión Gzip, filtrado de dominios permitidos (`TrustedHostMiddleware`) y un perfilador de tiempos de respuesta. |
-| **Infraestructura** | Virtualización completa del entorno mediante **Docker** y **Docker Compose**, utilizando puertos no comunes para evitar colisiones locales. |
+| Concepto Base (Curso)           | Implementación de Nivel de Producción (Este Proyecto)                                                                                                                                 |
+| :------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Bases de Datos con SQLModel** | Implementación de persistencia asíncrona avanzada con **SQLAlchemy + SQLModel** usando el driver `asyncpg` y conexión directa a **NeonDB** (PostgreSQL Serverless) en la nube.        |
+| **Estructura del Proyecto**     | Organización bajo **Clean Architecture** y patrón **Service Layer**, separando los módulos y desacoplando la lógica de negocio de los controladores para facilitar pruebas unitarias. |
+| **Autenticación JWT**           | Seguridad robusta con **Access & Refresh Tokens**. Se agregó invalidación activa mediante una lista de tokens revocados (**Redis Blocklist**) para un Logout seguro.                  |
+| **Control de Acceso (RBAC)**    | Sistema de autorización jerárquico basado en Roles y Permisos (`RoleChecker`) inyectados como dependencias de FastAPI.                                                                |
+| **Manejo de Errores**           | Jerarquía de excepciones polimórficas personalizadas (`BooklyException`) y controladores globales que devuelven payloads JSON legibles y consistentes.                                |
+| **Tareas en Segundo Plano**     | Delegación de procesos bloqueantes a un gestor de colas asíncrono con **Celery** y **Redis**, como el envío transaccional de correos (`fastapi-mail` + `asgiref`).                    |
+| **Middlewares**                 | Implementación de middlewares profesionales: CORS, compresión Gzip, filtrado de dominios permitidos (`TrustedHostMiddleware`) y un perfilador de tiempos de respuesta.                |
+| **Infraestructura**             | Virtualización completa del entorno mediante **Docker** y **Docker Compose**, utilizando puertos no comunes para evitar colisiones locales.                                           |
 
 ---
 
@@ -64,7 +64,7 @@ graph TD
 
 ### El Poder de la Asincronía Completa (Async/Await)
 
-La mayoría de los cuellos de botella en las APIs Web modernas se deben al **I/O Bound** (tiempo de espera para que una base de datos responda, o para que un servicio de terceros responda una petición HTTP). 
+La mayoría de los cuellos de botella en las APIs Web modernas se deben al **I/O Bound** (tiempo de espera para que una base de datos responda, o para que un servicio de terceros responda una petición HTTP).
 
 Utilizando Python asíncrono (`async`/`await`) con un motor de SQLAlchemy asíncrono (`create_async_engine`) y el driver `asyncpg` (PostgreSQL asíncrono), logramos que un solo hilo de FastAPI atienda miles de peticiones de manera concurrente. Mientras un cliente espera que NeonDB termine de guardar un libro, el hilo de ejecución se libera para procesar el Login de otro usuario, maximizando la eficiencia de los recursos del servidor.
 
@@ -89,16 +89,16 @@ sequenceDiagram
     API->>DB: Validar usuario
     DB-->>API: Usuario Válido
     API-->>Cliente: Retorna Access & Refresh Tokens (JWT)
-    
+
     Note over Cliente, API: Flujo de Cierre de Sesión (Logout)
-    
+
     Cliente->>API: POST /logout (Access Token)
     API->>Redis: Almacenar JTI (Token ID) con TTL (Expiración)
     Redis-->>API: OK (Guardado en memoria en O(1))
     API-->>Cliente: Sesión Cerrada
-    
+
     Note over Cliente, API: Intento de uso posterior del mismo token
-    
+
     Cliente->>API: GET /books (Token cerrado)
     API->>Redis: ¿Existe el JTI del Token en la lista de bloqueos?
     Redis-->>API: Sí, existe
@@ -134,7 +134,7 @@ El envío de un correo de verificación mediante SMTP requiere una conexión TCP
 
 Para optimizar el diseño, se implementó el **Patrón Productor-Consumidor**:
 
-1. **Productor (FastAPI)**: Registra al usuario en base de datos y manda un mensaje rápido al broker Redis: *"Oye, pon en la cola que se debe enviar un correo a Juan"*. Inmediatamente responde al usuario `HTTP 201 Created`.
+1. **Productor (FastAPI)**: Registra al usuario en base de datos y manda un mensaje rápido al broker Redis: _"Oye, pon en la cola que se debe enviar un correo a Juan"_. Inmediatamente responde al usuario `HTTP 201 Created`.
 2. **Broker (Redis)**: Almacena la tarea de manera temporal en la cola de tareas.
 3. **Consumidor (Celery Worker)**: Un proceso independiente lee la cola en Redis de manera asíncrona, extrae los parámetros y realiza el handshake SMTP con Gmail de forma segura en segundo plano sin interrumpir el servidor web.
 
@@ -155,9 +155,10 @@ def send_email_task(self, email_to: str, subject: str, html_content: str):
 Exponer trazas de error (`Tracebacks`) del servidor en producción es un grave fallo de seguridad. Además, devolver errores en formatos inconsistentes (unas veces texto plano, otras JSON plano) dificulta el consumo de la API por parte del equipo Frontend.
 
 Implementamos un sistema de control de excepciones polimórfico:
-* **Excepción Base (`BooklyException`)**: Hereda de la clase `Exception` nativa de Python y define atributos como `status_code`, `message`, `error_code`, y `resolution`.
-* **Excepciones Especializadas**: Clases como `UserAlreadyExists`, `BookNotFound`, o `InvalidToken` heredan de `BooklyException` sobrescribiendo únicamente sus valores característicos.
-* **Manejador de Errores Global**: FastAPI captura cualquier error derivado de `BooklyException` y devuelve una respuesta estructurada:
+
+- **Excepción Base (`BooklyException`)**: Hereda de la clase `Exception` nativa de Python y define atributos como `status_code`, `message`, `error_code`, y `resolution`.
+- **Excepciones Especializadas**: Clases como `UserAlreadyExists`, `BookNotFound`, o `InvalidToken` heredan de `BooklyException` sobrescribiendo únicamente sus valores característicos.
+- **Manejador de Errores Global**: FastAPI captura cualquier error derivado de `BooklyException` y devuelve una respuesta estructurada:
 
 ```json
 {
@@ -216,9 +217,9 @@ En [**`src/middleware.py`**](file:///c:/Users/lordm/Desktop/Proyectos%20y%20clas
 
 Para evitar conflictos de puertos con tus bases de datos o servicios Redis locales, el proyecto está completamente dockerizado utilizando puertos poco comunes:
 
-* **API de FastAPI**: Expuesta en el puerto **`8099`**
-* **Redis Broker**: Expuesto en el puerto **`6479`**
-* **Base de Datos**: NeonDB (Servicio en la nube).
+- **API de FastAPI**: Expuesta en el puerto **`8099`**
+- **Redis Broker**: Expuesto en el puerto **`6479`**
+- **Base de Datos**: NeonDB (Servicio en la nube).
 
 ### Instrucciones de Arranque
 
@@ -242,14 +243,14 @@ Para evitar conflictos de puertos con tus bases de datos o servicios Redis local
 
 Una vez levantados los contenedores, la documentación oficial está disponible en:
 
-* **Swagger UI (OpenAPI)**: [http://localhost:8099/docs](http://localhost:8099/docs) – Ideal para pruebas interactivas de endpoints y validación de schemas de entrada/salida.
-* **Redoc UI**: [http://localhost:8099/redoc](http://localhost:8099/redoc) – Ideal para visualización técnica estructurada y limpia.
+- **Swagger UI (OpenAPI)**: [http://localhost:8099/docs](http://localhost:8099/docs) – Ideal para pruebas interactivas de endpoints y validación de schemas de entrada/salida.
+- **Redoc UI**: [http://localhost:8099/redoc](http://localhost:8099/redoc) – Ideal para visualización técnica estructurada y limpia.
 
 ---
 
 ## 👤 Autor
 
-* **Desarrollador**: Albert Mijael Garayar Munive (Tech Lead & Full Stack Software Engineer)
-* **Correo**: [mijael.gara@gmail.com](mailto:mijael.gara@gmail.com)
-* **LinkedIn**: [albert-mijael-garayar-munive](https://linkedin.com/in/albert-mijael-garayar-munive/)
-* **GitHub**: [Gimms11](https://github.com/Gimms11)
+- **Desarrollador**: Albert Mijael Garayar Munive (Tech Lead & Full Stack Software Engineer)
+- **Correo**: [mijael.gara@gmail.com](mailto:mijael.gara@gmail.com)
+- **LinkedIn**: [albert-mijael-garayar-munive](https://linkedin.com/in/albert-mijael-garayar-munive/)
+- **GitHub**: [Gimms11](https://github.com/Gimms11)
