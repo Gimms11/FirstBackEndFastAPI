@@ -1,6 +1,8 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from datetime import timedelta
 
+from pydantic import EmailStr
+
 class Settings(BaseSettings):
     DATABASE_URL: str
     JWT_SECRET: str
@@ -8,6 +10,17 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRY_DAYS: int
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
+    
+    # Tareas en segundo plano (Celery)
+    REDIS_URL: str = "redis://localhost:6379/0"
+
+    # Credenciales y servidor SMTP
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_FROM: EmailStr
+    MAIL_FROM_NAME: str
 
     model_config = SettingsConfigDict(
         env_file=".env",

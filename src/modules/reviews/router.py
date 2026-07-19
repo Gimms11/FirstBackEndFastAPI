@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, status, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 from uuid import UUID
 
@@ -7,6 +7,7 @@ from src.modules.reviews.service import ReviewService
 from src.core.dependencies import get_current_user, RoleChecker
 from src.database.models import User, UserRole
 from src.database.main import get_session
+from src.errors import BookNotFound, ReviewNotFound, InsufficientPermission, InvalidId
 
 review_router = APIRouter()
 review_service = ReviewService()
@@ -19,7 +20,7 @@ async def get_book_reviews(book_id: str, session: AsyncSession = Depends(get_ses
     try:
         book_uuid = UUID(book_id)
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="ID de libro inválido")
+        raise InvalidId(message="ID de libro inválido")
         
     reviews = await review_service.get_reviews_for_book(session, book_uuid)
     return {"total_reviews": len(reviews), "reviews": reviews}
@@ -32,9 +33,9 @@ async def create_review(
 ) -> dict:
     """Crea una reseña (Requiere autenticación)."""
     new_review = await review_service.create_review(session, review_data, str(current_user.uid))
-    
+
     if not new_review:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Libro no encontrado")
+        raise BookNotFound()
         
     return {"message": "Reseña creada exitosamente", "review": new_review}
 
@@ -49,14 +50,14 @@ async def update_review(
     try:
         review_uuid = UUID(review_id)
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="ID de reseña inválido")
+        raise InvalidId(message="ID de reseña inválido")
 
     review = await review_service.get_review_by_id(session, review_uuid)
     if not review:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reseña no encontrada")
+        raise ReviewNotFound()
         
     if str(review.user_uid) != str(current_user.uid):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No puedes modificar la reseña de otro usuario")
+        raise InsufficientPermission(message="No puedes modificar la reseña de otro usuario")
         
     updated_review = await review_service.update_review(session, review_uuid, review_update)
     return {"message": "Reseña actualizada", "review": updated_review}
@@ -71,14 +72,14 @@ async def delete_review(
     try:
         review_uuid = UUID(review_id)
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="ID de reseña inválido")
+        raise InvalidId(message="ID de reseña inválido")
 
     review = await review_service.get_review_by_id(session, review_uuid)
     if not review:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reseña no encontrada")
+        raise ReviewNotFound()
         
     if str(review.user_uid) != str(current_user.uid) and current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permisos para eliminar esta reseña")
+        raise InsufficientPermission(message="No tienes permisos para eliminar esta reseña")
         
     await review_service.delete_review(session, review_uuid)
     return {"message": "Reseña eliminada"}

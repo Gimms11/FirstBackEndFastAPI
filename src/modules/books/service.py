@@ -64,11 +64,8 @@ class BookService:
                 result = await session.exec(statement)
                 author = result.first()
                 if not author:
-                    from fastapi import HTTPException, status
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail="Autor no encontrado"
-                    )
+                    from src.errors import AuthorNotFound
+                    raise AuthorNotFound()
                 book_to_update.author_id = author.uid
             else:
                 book_to_update.author_id = None

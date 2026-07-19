@@ -32,6 +32,7 @@ class ReviewService:
             user_uid=UUID(user_uid),
             book_uid=review_data.book_uid
         )
+        
         session.add(new_review)
         await session.commit()
         await session.refresh(new_review)

@@ -128,7 +128,7 @@ class Book(SQLModel, table=True):
 class Review(SQLModel, table=True):
     __tablename__ = "reviews"
     uid: UUID = Field(sa_column=Column(pg.UUID, nullable=False, primary_key=True, default=uuid4))
-    rating: int = Field(le=5) # 'le' significa less than or equal (<= 5)
+    rating: int = Field(le=5)
     review_text: str = Field(sa_column=Column(pg.VARCHAR, nullable=False))
     user_uid: Optional[UUID] = Field(default=None, foreign_key="users.uid")
     book_uid: Optional[UUID] = Field(default=None, foreign_key="books.uid")

@@ -1,0 +1,56 @@
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: backend_fastapi_redis
+    restart: always
+    ports:
+      - "6479:6379" # Puerto personalizado expuesto en tu host para Redis
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: backend_fastapi_web
+    restart: always
+    command: uvicorn src:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8099:8000" # Puerto expuesto en tu host para la API
+    volumes:
+      - .:/app
+    env_file:
+      - .env # Carga las variables de tu .env local (incluyendo tu DATABASE_URL de NeonDB)
+    environment:
+      # Sobrescribimos la conexión a Redis para que apunte al contenedor interno de la red docker
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  celery_worker:
+    build: .
+    container_name: backend_fastapi_celery
+    restart: always
+    command: celery -A src.celery_task.celery_app worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env # Carga las variables de tu .env local (incluyendo tu DATABASE_URL de NeonDB)
+    environment:
+      # Sobrescribimos la conexión a Redis para que apunte al contenedor interno de la red docker
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  redis_data:

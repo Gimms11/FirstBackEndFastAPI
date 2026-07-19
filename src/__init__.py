@@ -8,6 +8,9 @@ from src.modules.reviews.router import review_router
 from src.modules.tags.router import tag_router
 from src.database.main import init_db
 
+from .errors import register_error_handlers
+from .middleware import register_middleware  # Importamos nuestra función
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,14 +20,47 @@ async def lifespan(app: FastAPI):
     print("Apagando la aplicacion")
 
 
+description = """
+### 🚀 Arquitectura Backend Empresarial - API de Libros y Autores
+
+Esta API REST modular ha sido diseñada por **Albert Mijael Garayar Munive** bajo los principios de **Clean Architecture** y una **Service Layer** robusta para garantizar la escalabilidad, mantenibilidad y el desacoplamiento del sistema.
+
+#### 🛠️ Características Clave:
+* **Persistencia Asíncrona**: Acceso a datos altamente eficiente utilizando **SQLAlchemy / SQLModel** y **PostgreSQL**.
+* **Seguridad Enterprise**: Autenticación y autorización basada en tokens **JWT** con invalidación activa mediante una lista de bloqueo (**Redis Blocklist**).
+* **Control de Acceso basado en Roles (RBAC)**: Restricciones de seguridad avanzadas en endpoints críticos.
+* **Procesamiento en Segundo Plano**: Integración con **Celery** y **Redis** para el manejo de tareas asíncronas.
+* **Gestión Completa**: Control de libros, autores, reseñas y etiquetas (*tags*).
+
+#### 👤 Información del Desarrollador:
+* **Desarrollador**: Albert Mijael Garayar Munive (Tech Lead & Full Stack Software Engineer)
+* **Correo**: [mijael.gara@gmail.com](mailto:mijael.gara@gmail.com)
+* **GitHub**: [github.com/Gimms11](https://github.com/Gimms11)
+* **LinkedIn**: [linkedin.com/in/albert-mijael-garayar-munive/](https://linkedin.com/in/albert-mijael-garayar-munive/)
+"""
+
 version = "v1"
 
 app = FastAPI(
     version=version,
-    title="API de Libros",
-    description="API para gestionar libros",
+    title="Arquitectura Backend Empresarial - API de Libros",
+    description=description,
     lifespan=lifespan,
+    contact={
+        "name": "Albert Mijael Garayar Munive",
+        "url": "https://github.com/Gimms11",
+        "email": "mijael.gara@gmail.com",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
+
+register_error_handlers(app)
+register_middleware(app)  # ¡Registramos nuestros Middlewares aquí!
 
 app.include_router(book_router, prefix=f"/api/{version}", tags=["Books"])
 app.include_router(author_router, prefix=f"/api/{version}", tags=["Authors"])

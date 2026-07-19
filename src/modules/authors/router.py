@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, status, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 from uuid import UUID
 
@@ -7,6 +7,7 @@ from src.modules.authors.service import AuthorService
 from src.core.dependencies import RoleChecker
 from src.modules.auth.models import UserRole
 from src.database.main import get_session
+from src.errors import AuthorNotFound
 
 author_router = APIRouter()
 author_service = AuthorService()
@@ -28,7 +29,7 @@ async def get_author(author_id: str, session: AsyncSession = Depends(get_session
     """Busca un autor específico por su ID. Público."""
     author = await author_service.get_author_by_id(session, UUID(author_id))
     if not author:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Autor no encontrado")
+        raise AuthorNotFound()
     return {"message": "Autor encontrado", "author": author}
 
 
@@ -53,7 +54,7 @@ async def update_author(
     """Actualiza parcialmente un autor. Requiere rol ADMIN."""
     author = await author_service.update_author(session, UUID(author_id), author_update)
     if not author:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Autor no encontrado")
+        raise AuthorNotFound()
     return {"message": "Autor actualizado exitosamente", "author": author}
 
 
@@ -66,5 +67,5 @@ async def delete_author(
     """Elimina un autor. Requiere rol ADMIN."""
     result = await author_service.delete_author(session, UUID(author_id))
     if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Autor no encontrado")
+        raise AuthorNotFound()
     return {"message": "Autor eliminado exitosamente", "author": result}
