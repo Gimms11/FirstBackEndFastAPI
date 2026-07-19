@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 from fastapi import APIRouter, status, Depends
+=======
+from fastapi import APIRouter, HTTPException, status, Depends
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 from datetime import timedelta, datetime, timezone
@@ -12,9 +16,12 @@ from src.database.models import User
 from src.database.main import get_session
 from src.database.redis import add_jti_to_blocklist
 from src.config import Config
+<<<<<<< HEAD
 from src.errors import UserAlreadyExists, InvalidCredentials, InvalidToken
 
 from src.celery_task import send_email_task
+=======
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 
 auth_router = APIRouter()
 user_service = UserService()
@@ -25,6 +32,7 @@ async def create_user(user_data: UserCreateModel, session: AsyncSession = Depend
     """Crea un nuevo usuario, verificando que el correo y username no existan previamente."""
     existing_user = await user_service.get_user_by_email(user_data.email, session)
     if existing_user:
+<<<<<<< HEAD
         raise UserAlreadyExists()
     existing_username = await user_service.get_user_by_username(user_data.username, session)
     if existing_username:
@@ -62,6 +70,19 @@ async def create_user(user_data: UserCreateModel, session: AsyncSession = Depend
         html_content=html_template
     )
     
+=======
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El correo ya existe"
+        )
+    existing_username = await user_service.get_user_by_username(user_data.username, session)
+    if existing_username:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El username ya existe"
+        )
+    new_user = await user_service.create_user(user_data, session)
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
     return {"message": "Usuario creado exitosamente", "user": new_user}
 
 
@@ -96,7 +117,14 @@ async def login_user(login_data: UserLoginModel, session: AsyncSession = Depends
                 }
             )
 
+<<<<<<< HEAD
     raise InvalidCredentials()
+=======
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Correo o contraseña incorrectos"
+    )
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 
 
 @auth_router.get("/refresh_token")
@@ -108,7 +136,14 @@ async def get_new_access_token(token_details: dict = Depends(RefreshTokenBearer(
         new_access_token = create_access_token(user_data=token_details["user"])
         return JSONResponse(content={"access_token": new_access_token})
 
+<<<<<<< HEAD
     raise InvalidToken()
+=======
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="El token ha expirado o es inválido"
+    )
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 
 
 @auth_router.get('/logout')

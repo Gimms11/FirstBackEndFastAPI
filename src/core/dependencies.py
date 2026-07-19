@@ -1,4 +1,8 @@
 from fastapi import Depends, status
+<<<<<<< HEAD
+=======
+from fastapi.exceptions import HTTPException
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from typing import List
@@ -7,7 +11,10 @@ from src.core.security import AccessTokenBearer
 from src.database.main import get_session
 from src.modules.auth.models import User, UserRole
 from src.modules.auth.service import UserService
+<<<<<<< HEAD
 from src.errors import UserNotFound, InsufficientPermission
+=======
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 
 _user_service = UserService()
 _access_token_bearer = AccessTokenBearer()
@@ -25,7 +32,14 @@ async def get_current_user(
     user = await _user_service.get_user_by_email(user_email, session)
 
     if not user:
+<<<<<<< HEAD
         raise UserNotFound()
+=======
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado en el sistema"
+        )
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 
     return user
 
@@ -42,4 +56,11 @@ class RoleChecker:
         if current_user.role in self.allowed_roles:
             return True
             
+<<<<<<< HEAD
         raise InsufficientPermission()
+=======
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permisos suficientes para realizar esta acción"
+        )
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89

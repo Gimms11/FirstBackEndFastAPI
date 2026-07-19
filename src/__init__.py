@@ -8,9 +8,12 @@ from src.modules.reviews.router import review_router
 from src.modules.tags.router import tag_router
 from src.database.main import init_db
 
+<<<<<<< HEAD
 from .errors import register_error_handlers
 from .middleware import register_middleware  # Importamos nuestra función
 
+=======
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,6 +23,7 @@ async def lifespan(app: FastAPI):
     print("Apagando la aplicacion")
 
 
+<<<<<<< HEAD
 description = """
 ### 🚀 Arquitectura Backend Empresarial - API de Libros y Autores
 
@@ -39,10 +43,13 @@ Esta API REST modular ha sido diseñada por **Albert Mijael Garayar Munive** baj
 * **LinkedIn**: [linkedin.com/in/albert-mijael-garayar-munive/](https://linkedin.com/in/albert-mijael-garayar-munive/)
 """
 
+=======
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 version = "v1"
 
 app = FastAPI(
     version=version,
+<<<<<<< HEAD
     title="Arquitectura Backend Empresarial - API de Libros",
     description=description,
     lifespan=lifespan,
@@ -62,6 +69,13 @@ app = FastAPI(
 register_error_handlers(app)
 register_middleware(app)  # ¡Registramos nuestros Middlewares aquí!
 
+=======
+    title="API de Libros",
+    description="API para gestionar libros",
+    lifespan=lifespan,
+)
+
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 app.include_router(book_router, prefix=f"/api/{version}", tags=["Books"])
 app.include_router(author_router, prefix=f"/api/{version}", tags=["Authors"])
 app.include_router(auth_router, prefix=f"/api/{version}/auth", tags=["Auth"])

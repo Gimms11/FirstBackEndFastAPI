@@ -1,9 +1,16 @@
 from fastapi import Request, status
 from fastapi.security import HTTPBearer
+<<<<<<< HEAD
 
 from src.modules.auth.utils import decode_token
 from src.database.redis import token_in_blocklist
 from src.errors import InvalidToken, RevokedToken, AccessTokenRequired, RefreshTokenRequired
+=======
+from fastapi.exceptions import HTTPException
+
+from src.modules.auth.utils import decode_token
+from src.database.redis import token_in_blocklist
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 
 
 class TokenBearer(HTTPBearer):
@@ -22,11 +29,28 @@ class TokenBearer(HTTPBearer):
         token_data = decode_token(token)
 
         if not token_data:
+<<<<<<< HEAD
             raise InvalidToken()
 
         # Verificación en la lista de bloqueos de Redis
         if await token_in_blocklist(token_data["jti"]):
             raise RevokedToken()
+=======
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"error": "Token inválido o expirado", "resolution": "Obtén un nuevo token"}
+            )
+
+        # Verificación en la lista de bloqueos de Redis
+        if await token_in_blocklist(token_data["jti"]):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "error": "Este token ha sido revocado o es inválido",
+                    "resolution": "Por favor, inicia sesión nuevamente"
+                }
+            )
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 
         self.verify_token_data(token_data)
         return token_data
@@ -39,11 +63,25 @@ class AccessTokenBearer(TokenBearer):
     """Verifica que el token sea de tipo acceso (no refresh)."""
     def verify_token_data(self, token_data: dict) -> None:
         if token_data and token_data.get("refresh"):
+<<<<<<< HEAD
             raise AccessTokenRequired()
+=======
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Por favor, proporciona un token de acceso (Access Token)",
+            )
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 
 
 class RefreshTokenBearer(TokenBearer):
     """Verifica que el token sea de tipo refresh (no acceso)."""
     def verify_token_data(self, token_data: dict) -> None:
         if token_data and not token_data.get("refresh"):
+<<<<<<< HEAD
             raise RefreshTokenRequired()
+=======
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Por favor, proporciona un token de refresco (Refresh Token)",
+            )
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89

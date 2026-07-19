@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.config import Config
 from sqlalchemy.orm import sessionmaker
+<<<<<<< HEAD
 from sqlalchemy.pool import NullPool
 
 engine = create_async_engine(
@@ -14,6 +15,10 @@ engine = create_async_engine(
         "prepared_statement_cache_size": 0,
     }
 )
+=======
+
+engine = create_async_engine(url=Config.DATABASE_URL, echo=True)
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 
 
 async def init_db():

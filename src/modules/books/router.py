@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 from fastapi import APIRouter, status, Depends
+=======
+from fastapi import APIRouter, HTTPException, status, Depends
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 from sqlmodel.ext.asyncio.session import AsyncSession
 from uuid import UUID
 
 from src.modules.books.schemas import BookSchema, BookCreateModel, BookUpdate, GetBooksResponse, BookResponse
 from src.modules.books.service import BookService
+<<<<<<< HEAD
 from src.core.dependencies import RoleChecker, get_current_user
 from src.modules.auth.models import UserRole
 from src.database.models import User
@@ -12,6 +17,12 @@ from src.database.main import get_session
 from src.errors import BookNotFound, BookAlreadyExists, InvalidToken, AuthorNotFound, InvalidIdBook
 
 from src.celery_task import send_email_task
+=======
+from src.core.dependencies import RoleChecker
+from src.modules.auth.models import UserRole
+from src.core.security import AccessTokenBearer
+from src.database.main import get_session
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 
 book_router = APIRouter()
 access_token_bearer = AccessTokenBearer()
@@ -34,6 +45,7 @@ async def get_books(session: AsyncSession = Depends(get_session)) -> dict:
 @book_router.get("/book/{book_id}", response_model=BookResponse, status_code=status.HTTP_200_OK)
 async def get_book(book_id: str, session: AsyncSession = Depends(get_session)) -> dict:
     """Busca un libro específico por su ID. Público."""
+<<<<<<< HEAD
     try:
         book = await book_service.get_book_by_id(session, UUID(book_id))
     except ValueError:
@@ -41,6 +53,11 @@ async def get_book(book_id: str, session: AsyncSession = Depends(get_session)) -
 
     if not book:
         raise BookNotFound()
+=======
+    book = await book_service.get_book_by_id(session, UUID(book_id))
+    if not book:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Libro no encontrado")
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
     return {"message": "Libro encontrado", "book": book}
 
 
@@ -49,23 +66,36 @@ async def get_book(book_id: str, session: AsyncSession = Depends(get_session)) -
 async def create_book(
     book_data: BookCreateModel,
     session: AsyncSession = Depends(get_session),
+<<<<<<< HEAD
     token_details: dict = Depends(access_token_bearer),
     current_user: User = Depends(get_current_user)
+=======
+    token_details: dict = Depends(access_token_bearer)
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 ) -> dict:
     """Crea un nuevo libro. Requiere rol ADMIN o PRO_USER."""
     books = await book_service.get_all_books(session)
     
     if any(b.title == book_data.title for b in books):
+<<<<<<< HEAD
         raise BookAlreadyExists()
+=======
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El libro ya existe.")
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
     
     user = token_details.get("user", {})
     user_uid = user.get("user_uid")
     if not user_uid:
+<<<<<<< HEAD
         raise InvalidToken()
+=======
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido, falta user_uid")
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
     
     new_book = await book_service.create_book(session, book_data, user_uid)
     
     if not new_book:
+<<<<<<< HEAD
         raise AuthorNotFound()
         
     # 1. Definición de la plantilla adaptada a la marca
@@ -97,6 +127,9 @@ async def create_book(
         subject="Creación Exitosa de Libro",
         html_content=html_template
     )
+=======
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Autor no encontrado")
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
     
     return {"message": "Libro creado exitosamente", "book": new_book}
 
@@ -111,12 +144,20 @@ async def update_book(
     """Actualiza parcialmente un libro. Requiere rol ADMIN o PRO_USER."""
     book = await book_service.update_book(session, UUID(book_id), book_update)
     if not book:
+<<<<<<< HEAD
         raise BookNotFound()
+=======
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Libro no encontrado")
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
     return {"message": "Libro actualizado exitosamente", "book": book}
 
 
 @book_router.delete("/book/{book_id}", response_model=BookResponse, status_code=status.HTTP_200_OK,
+<<<<<<< HEAD
                      dependencies=[_can_delete])
+=======
+                    dependencies=[_can_delete])
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
 async def delete_book(
     book_id: str,
     session: AsyncSession = Depends(get_session),
@@ -124,7 +165,11 @@ async def delete_book(
     """Elimina un libro. Requiere rol ADMIN."""
     book = await book_service.delete_book(session, UUID(book_id))
     if not book:
+<<<<<<< HEAD
         raise BookNotFound()
+=======
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Libro no encontrado")
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
     return {"message": "Libro eliminado exitosamente", "book": book}
 
 
@@ -137,7 +182,11 @@ async def get_my_books(
     user = token_details.get("user", {})
     user_uid = user.get("user_uid")
     if not user_uid:
+<<<<<<< HEAD
         raise InvalidToken()
+=======
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+>>>>>>> 2106935d3af0aff6b65db4b3bb76c43d52855a89
         
     books = await book_service.get_user_books(user_uid, session)
     return {"total_books": len(books), "books": books}
